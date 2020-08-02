@@ -1,6 +1,5 @@
 package functions;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import utils.constants;
@@ -27,28 +26,13 @@ public class createChannel
 
     private static void createChannels(Category category, GuildVoiceJoinEvent e) throws Exception
     {
-        category.createTextChannel(getNextTextChannelName(e)).queue();
+        int totalChannels = e.getGuild().getCategoriesByName(constants.practiceCategoryName, false).get(0).getVoiceChannels().size();
+        totalChannels += 1;
+        category.createTextChannel(channels.getNextTextChannelName(totalChannels)).queue();
         Thread.sleep(100);
-        category.createVoiceChannel(getNextVoiceChannelName(e)).queue();
+        category.createVoiceChannel(channels.getNextVoiceChannelName(totalChannels)).queue();
         Thread.sleep(100);
     }
 
-    private static String getNextTextChannelName(GuildVoiceJoinEvent e)
-    {
-        int textChannelCount = e.getGuild().getTextChannels().size();
-        String textChannelName = constants.practiceTextChannelName + constants.VC_IDENTIFIERS[textChannelCount];
 
-        System.out.println("Creating a text channel with the name of " + textChannelName);
-        return textChannelName;
-    }
-
-    private static String getNextVoiceChannelName(GuildVoiceJoinEvent e)
-    {
-        int textChannelCount = e.getGuild().getTextChannels().size();
-        //int voiceChannelCount = e.getGuild().getVoiceChannels().size();
-        String voiceChannelName = constants.practiceVoiceChannelName + constants.VC_IDENTIFIERS[textChannelCount];
-
-        System.out.println("Creating a voice channel with the name of " + voiceChannelName);
-        return voiceChannelName;
-    }
 }

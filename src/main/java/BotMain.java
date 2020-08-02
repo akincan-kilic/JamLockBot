@@ -6,9 +6,8 @@ public class BotMain
 {
     public static void main(String[]args) throws Exception
     {
-        JDA jda = new JDABuilder("<BOT TOKEN>").build();
+        JDA jda = new JDABuilder("BOT_TOKEN").build();
         jda.addEventListener(commands.commandBuilder.getCommands());
         jda.addEventListener(new userListener());
-
     }
 }

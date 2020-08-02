@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class userInfo extends Command
 {

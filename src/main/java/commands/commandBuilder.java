@@ -14,6 +14,8 @@ public class commandBuilder
         builder.setHelpWord("help");
         builder.addCommand(new setup());
         builder.addCommand(new userInfo());
+        builder.addCommand(new lock());
+        builder.addCommand(new unlock());
 
         return builder.build();
     }
