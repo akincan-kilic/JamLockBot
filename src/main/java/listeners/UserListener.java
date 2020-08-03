@@ -1,5 +1,7 @@
 package listeners;
 
+import events.VoiceJoinEvent;
+import events.VoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -7,18 +9,18 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
 
-public class userListener extends ListenerAdapter
+public class UserListener extends ListenerAdapter
 {
     @Override
     public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent e)
     {
-        events.voiceJoinEvent.voiceJoin(e);
+        VoiceJoinEvent.voiceJoin(e);
     }
 
     @Override
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent e)
     {
-        events.voiceLeaveEvent.voiceLeave(e);
+        VoiceLeaveEvent.voiceLeave(e);
     }
 
     @Override
@@ -27,12 +29,9 @@ public class userListener extends ListenerAdapter
         System.out.println("User moved, initiating fake join and leave events...");
 
         GuildVoiceJoinEvent joinEvent = new GuildVoiceJoinEvent(e.getJDA(), e.getResponseNumber(), e.getMember());
-        events.voiceJoinEvent.voiceMoveJoin(joinEvent);
+        VoiceJoinEvent.voiceMoveJoin(joinEvent);
 
         GuildVoiceLeaveEvent leaveEvent = new GuildVoiceLeaveEvent(e.getJDA(), e.getResponseNumber(), e.getMember(), e.getChannelLeft());
-        events.voiceLeaveEvent.voiceLeave(leaveEvent);
+        VoiceLeaveEvent.voiceMoveLeave(leaveEvent);
     }
-
-
-
 }

@@ -3,13 +3,11 @@ package commands;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.entities.GuildChannel;
-import utils.constants;
+import utils.Constants;
 
-import java.util.List;
-
-public class setup extends Command
+public class Setup extends Command
 {
-    public setup()
+    public Setup()
     {
         this.guildOnly = true;
         this.name = "setup";
@@ -18,9 +16,7 @@ public class setup extends Command
 
     private void unSetup(CommandEvent e) throws InterruptedException
     {
-        List<GuildChannel> guildChannelList = e.getGuild().getChannels();
-
-        for (GuildChannel guildChannel : guildChannelList)
+        for (GuildChannel guildChannel : e.getGuild().getChannels())
         {
             if (guildChannel.getName().contains("Practice Room") || guildChannel.getName().contains("practice-room"))
             {
@@ -34,16 +30,16 @@ public class setup extends Command
     {
         try { unSetup(e); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
-        String categoryName = constants.practiceCategoryName;
-        String textChannelName = constants.practiceTextChannelName;
-        String voiceChannelName = constants.practiceVoiceChannelName;
+        String categoryName = Constants.PRACTICE_CATEGORY_NAME;
+        String textChannelName = Constants.PRACTICE_TEXT_CHANNEL_NAME;
+        String voiceChannelName = Constants.PRACTICE_VOICE_CHANNEL_NAME;
 
         e.getGuild().createCategory(categoryName).queue(cat ->
         {
             for (int i = 0; i < 5; i++)
             {
-                cat.createTextChannel(textChannelName + (constants.VC_IDENTIFIERS[i])).queue();
-                cat.createVoiceChannel(voiceChannelName + (constants.VC_IDENTIFIERS[i])).queue();
+                cat.createTextChannel(textChannelName + (Constants.VC_IDENTIFIERS[i])).queue();
+                cat.createVoiceChannel(voiceChannelName + (Constants.VC_IDENTIFIERS[i])).queue();
                 try { Thread.sleep(100); } catch (InterruptedException ex) { ex.printStackTrace(); }
             }
         });
