@@ -11,12 +11,13 @@ import org.slf4j.LoggerFactory;
 
 public class Unlock extends Command
 {
-    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+    private static final Logger log = LoggerFactory.getLogger(Unlock.class);
 
     public Unlock()
     {
         this.name = "unlock";
         this.guildOnly = true;
+        this.help = "Unlocks the already locked practice room so that other users can talk.";
     }
 
     @Override

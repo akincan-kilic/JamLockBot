@@ -2,7 +2,6 @@ package commands;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import functions.Channels;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -12,13 +11,13 @@ import utils.Constants;
 
 public class Setup extends Command
 {
-    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+    private static final Logger log = LoggerFactory.getLogger(Setup.class);
 
     public Setup()
     {
         this.guildOnly = true;
         this.name = "setup";
-        this.help = "Sets up the practice rooms. (Also removes all the existing practice rooms before setup)";
+        this.help = "Sets up the practice rooms. (Only an Admin or a Bot Manager is allowed to use this command)";
     }
 
 

@@ -2,7 +2,6 @@ package listeners;
 
 import events.VoiceJoinEvent;
 import events.VoiceLeaveEvent;
-import functions.Channels;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class UserListener extends ListenerAdapter
 {
-    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+    private static final Logger log = LoggerFactory.getLogger(UserListener.class);
 
     @Override
     public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent e)

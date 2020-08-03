@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class VoiceJoinEvent
 {
-    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+    private static final Logger log = LoggerFactory.getLogger(VoiceJoinEvent.class);
 
     private static boolean isLockedRoom(VoiceChannel voiceChannel)
     {

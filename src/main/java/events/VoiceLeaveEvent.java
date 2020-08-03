@@ -11,7 +11,7 @@ import java.util.List;
 
 public class VoiceLeaveEvent
 {
-    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+    private static final Logger log = LoggerFactory.getLogger(VoiceLeaveEvent.class);
 
     private static boolean isLockedRoom(VoiceChannel voiceChannel)
     {

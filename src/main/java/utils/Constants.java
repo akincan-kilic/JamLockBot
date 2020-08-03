@@ -12,5 +12,5 @@ public class Constants
             "🌟", "✨", "🍏", "🍎", "🍐", "🍊", "🍋", "🍌","💫", "⭐",
             "🍉", "🍇", "🍓", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝"};
 
-    public static final int MAX_EMPTY_UNLOCKED_ROOMS = 5;
+    public static final int MAX_EMPTY_UNLOCKED_ROOMS = 3;
 }
