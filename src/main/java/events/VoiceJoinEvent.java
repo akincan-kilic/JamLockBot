@@ -3,9 +3,13 @@ package events;
 import functions.Channels;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VoiceJoinEvent
 {
+    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+
     private static boolean isLockedRoom(VoiceChannel voiceChannel)
     {
         return voiceChannel.getName().startsWith("🔒");
@@ -20,9 +24,7 @@ public class VoiceJoinEvent
 
         if (newVoiceChannel.getMembers().size() == 1)
         {
-            System.out.println("User joined an empty voice channel");
-            System.out.println("Attempting to create new voice and text channels...");
-
+            log.info("User: {} joined an empty voice channel", newVoiceChannel.getMembers().get(0).getUser().getName());
             try { Channels.createPracticeRoom(e); } catch (Exception ex) { ex.printStackTrace(); }
         }
     }
@@ -36,6 +38,7 @@ public class VoiceJoinEvent
     {
         if (isLockedRoom(e.getChannelJoined()))
         {
+            log.info("Muting user: {} because they joined a locked room and they are not the host", e.getMember().getUser().getName());
             String hostName = e.getChannelJoined().getName().split(" ")[4];
             if (e.getMember().getUser().getName().equals(hostName))
                 e.getMember().mute(false).queue();

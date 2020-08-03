@@ -7,10 +7,14 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.Constants;
 
 public class Lock extends Command
 {
+    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+
     public Lock()
     {
         this.name = "lock";
@@ -21,7 +25,8 @@ public class Lock extends Command
     @Override
     protected void execute(CommandEvent commandEvent)
     {
-        System.out.println("Inside the lock execute event");
+        log.info("Lock command called");
+
         TextChannel textChannel = commandEvent.getMessage().getTextChannel();
 
         if (!textChannel.getName().split("-")[0].equals("practice"))
@@ -37,7 +42,7 @@ public class Lock extends Command
             {
                 if (member.getUser().getName().equals(hostUser.getName()))
                 {
-                    System.out.println("Found the host user in the corresponding voice channel, locking the room...");
+                    log.info("Found the host user in the corresponding voice channel, locking the room...");
                     foundHost = true;
                     matchingVoiceChannel.getManager().setName(Constants.LOCK_ICON + matchingVoiceChannel.getName() + " " + hostUser.getName()).queue();
                     textChannel.getManager().setName(Constants.LOCK_ICON + textChannel.getName()).queue();
@@ -48,7 +53,10 @@ public class Lock extends Command
                 }
             }
             if (!foundHost)
+            {
+                log.info("Couldn't find the host in the voice channel after lock command was used");
                 textChannel.sendMessage("You have to be in the corresponding voice channel in order to use this command!").queue();
+            }
         }
     }
 }

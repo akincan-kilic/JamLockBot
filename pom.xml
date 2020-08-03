@@ -35,6 +35,13 @@
             <artifactId>JDA</artifactId>
             <version>4.2.0_183</version>
         </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

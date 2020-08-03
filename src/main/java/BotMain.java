@@ -13,9 +13,8 @@ public class BotMain
         System.out.print("Enter the bot token: ");
         final String BOT_TOKEN = botTokenInput.nextLine();
 
-        JDA jda = new JDABuilder(BOT_TOKEN).build();
+        JDA jda = JDABuilder.createDefault(BOT_TOKEN).build();
         jda.addEventListener(CommandBuilder.getCommands());
         jda.addEventListener(new UserListener());
-        System.out.println("BOT IS ONLINE!");
     }
 }

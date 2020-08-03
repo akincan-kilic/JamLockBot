@@ -7,12 +7,16 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.Constants;
 
 import java.util.List;
 
 public class Channels
 {
+    private static final Logger log = LoggerFactory.getLogger(Channels.class);
+
     public static VoiceChannel getMatchingVoiceChannel(CommandEvent e, TextChannel textChannel)
     {
         String textChannelEmoji = textChannel.getName().split("-")[3];
@@ -22,7 +26,7 @@ public class Channels
             if (voiceChannel.getName().split(" ")[3].equals(textChannelEmoji))
                 return voiceChannel;
 
-        System.out.println("ERROR: Couldn't find matching voice channel!");
+        log.error("Couldn't find matching voice channel!");
         return null;
     }
 
@@ -35,7 +39,7 @@ public class Channels
             if (textChannel.getName().split("-")[3].equals(voiceChannelEmoji))
                 return textChannel;
 
-        System.out.println("ERROR: Couldn't find matching voice channel!");
+        log.error("Couldn't find matching text channel!");
         return null;
     }
 
@@ -57,11 +61,11 @@ public class Channels
             }
             if (!nameExists)
             {
-                System.out.println("Returning text channel name of: " + newTextChannelName);
+                log.info("Creating a Text Channel:" + newTextChannelName);
                 return newTextChannelName;
             }
         }
-        System.out.println("RAN OUT OF ROOM EMOTES");
+        log.error("Ran out of room emotes!");
         return "XXX";
     }
 
@@ -86,16 +90,18 @@ public class Channels
             }
             if (!nameExists)
             {
-                System.out.println("Returning voice channel name of: " + newVoiceChannelName);
+                log.info("Creating a Voice Channel: " + newVoiceChannelName);
                 return newVoiceChannelName;
             }
         }
-        System.out.println("RAN OUT OF ROOM EMOTES");
-        return "XXX";
+        log.error("Ran out of room emotes!");
+            return "XXX";
     }
 
     public static void createPracticeRoom(GuildVoiceJoinEvent e) throws Exception
     {
+        log.info("Attempting to create new voice and text channels...");
+
         String categoryName = Constants.PRACTICE_CATEGORY_NAME;
         List<Category> result = e.getGuild().getCategoriesByName(categoryName, false);
 
@@ -122,17 +128,20 @@ public class Channels
         for (int i = voiceChannels.size()-1; i >= 0; i--) //For loop starts from the last index so the last rooms start getting deleted.
         {
             if (emptyVoiceChannelCount <= Constants.MAX_EMPTY_UNLOCKED_ROOMS)
+            {
+                log.info("Successfully deleted all the extra practice rooms.");
                 break;
+            }
 
-            System.out.printf("There are %d extra empty voice channels, attempting to delete them... \n", emptyVoiceChannelCount - Constants.MAX_EMPTY_UNLOCKED_ROOMS);
+            log.info("There are {} extra empty voice channels, attempting to delete them...", emptyVoiceChannelCount - Constants.MAX_EMPTY_UNLOCKED_ROOMS);
 
             if (voiceChannels.get(i).getMembers().size() == 0)
             {
-                System.out.println("DELETE: Deleting the extra text channel...");
+                log.info("Deleting the extra text channel: {}", textChannels.get(i).getName());
                 textChannels.get(i).delete().queue();
                 Thread.sleep(100);
 
-                System.out.println("DELETE: Deleting the extra voice channel...");
+                log.info("Deleting the extra voice channel: {}", voiceChannels.get(i).getName());
                 voiceChannels.get(i).delete().queue();
                 Thread.sleep(100);
 
