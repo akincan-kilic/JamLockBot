@@ -18,13 +18,13 @@ public class setup extends Command
 
     private void unSetup(CommandEvent e) throws InterruptedException
     {
-        List<GuildChannel> test = e.getGuild().getChannels();
+        List<GuildChannel> guildChannelList = e.getGuild().getChannels();
 
-        for (int i = 0; i < test.size(); i++)
+        for (GuildChannel guildChannel : guildChannelList)
         {
-            if (test.get(i).getName().contains("Practice Room") || test.get(i).getName().contains("practice-room"))
+            if (guildChannel.getName().contains("Practice Room") || guildChannel.getName().contains("practice-room"))
             {
-                test.get(i).delete().queue();
+                guildChannel.delete().queue();
                 Thread.sleep(100);
             }
         }

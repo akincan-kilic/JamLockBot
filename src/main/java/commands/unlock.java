@@ -5,7 +5,6 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import functions.channels;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import utils.constants;
 
 public class unlock extends Command
 {
@@ -22,14 +21,11 @@ public class unlock extends Command
 
         if (hostUserName.equals(e.getAuthor().getName()))
         {
-            int totalChannels = e.getGuild().getCategoriesByName(constants.practiceCategoryName, false).get(0).getVoiceChannels().size();
-            totalChannels += 1;
-
             TextChannel textChannel = e.getTextChannel();
             VoiceChannel voiceChannel = channels.getMatchingVoiceChannel(e, textChannel);
             assert voiceChannel != null;
-            voiceChannel.getManager().setName(channels.getNextVoiceChannelName(totalChannels)).queue();
-            textChannel.getManager().setName(channels.getNextTextChannelName(totalChannels)).queue();
+            voiceChannel.getManager().setName(channels.getNextVoiceChannelName(e)).queue();
+            textChannel.getManager().setName(channels.getNextTextChannelName(e)).queue();
 
             for (int i = 0; i < voiceChannel.getMembers().size(); i++)
             {
