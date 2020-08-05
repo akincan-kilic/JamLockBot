@@ -19,13 +19,14 @@ public class Lock extends Command
     {
         this.name = "lock";
         this.guildOnly = true;
-        this.help = "Locks the practice room so only the host can talk.";
+        this.help = "Locks the practice room so only the host can talk. (This has a 10 minute cooldown to re-use on the same voice channel!)";
     }
 
     @Override
     protected void execute(CommandEvent commandEvent)
     {
         log.info("Lock command called");
+
 
         TextChannel textChannel = commandEvent.getMessage().getTextChannel();
 
@@ -44,8 +45,15 @@ public class Lock extends Command
                 {
                     log.info("Found the host user in the corresponding voice channel, locking the room...");
                     foundHost = true;
-                    matchingVoiceChannel.getManager().setName(Constants.LOCK_ICON + matchingVoiceChannel.getName() + " " + hostUser.getName()).queue();
-                    textChannel.getManager().setName(Constants.LOCK_ICON + textChannel.getName()).queue();
+                    String userID = hostUser.getId();
+                    String userName = hostUser.getName().split(" ")[0].trim();
+
+                    String emote = Channels.getNextEmote(commandEvent);
+
+                    String lockedVoiceName = Constants.LOCK_ICON + userName + "'s Voice " + userID + " " + emote;
+                    String lockedTextName = Constants.LOCK_ICON + userName + "'s-text-" + userID + "-" + emote;
+
+                    Channels.createLockedPracticeRoomsAndMove(commandEvent, lockedVoiceName, lockedTextName, matchingVoiceChannel);
 
                     for(Member memberToMute : matchingVoiceChannel.getMembers())
                         if (memberToMute.getUser() != hostUser)

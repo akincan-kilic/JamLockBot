@@ -39,8 +39,8 @@ public class VoiceJoinEvent
         if (isLockedRoom(e.getChannelJoined()))
         {
             log.info("Muting user: {} because they joined a locked room and they are not the host", e.getMember().getUser().getName());
-            String hostName = e.getChannelJoined().getName().split(" ")[4];
-            if (e.getMember().getUser().getName().equals(hostName))
+            String hostID = e.getChannelJoined().getName().split(" ")[2];
+            if (e.getMember().getUser().getId().equals(hostID))
                 e.getMember().mute(false).queue();
             else
                 e.getMember().mute(true).queue();

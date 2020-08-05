@@ -1,10 +1,7 @@
 package functions;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import org.slf4j.Logger;
@@ -12,10 +9,16 @@ import org.slf4j.LoggerFactory;
 import utils.Constants;
 
 import java.util.List;
+import java.util.Random;
 
 public class Channels
 {
     private static final Logger log = LoggerFactory.getLogger(Channels.class);
+
+    public static boolean isPracticeRoom(GuildChannel guildChannel)
+    {
+        return guildChannel.getName().startsWith("Practice Room") || guildChannel.getName().startsWith("practice-room") || guildChannel.getName().startsWith("🔒");
+    }
 
     public static VoiceChannel getMatchingVoiceChannel(CommandEvent e, TextChannel textChannel)
     {
@@ -23,8 +26,10 @@ public class Channels
         List<VoiceChannel> voiceChannels = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0).getVoiceChannels();
 
         for (VoiceChannel voiceChannel : voiceChannels)
+        {
             if (voiceChannel.getName().split(" ")[3].equals(textChannelEmoji))
                 return voiceChannel;
+        }
 
         log.error("Couldn't find matching voice channel!");
         return null;
@@ -36,66 +41,78 @@ public class Channels
         List<TextChannel> textChannels = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0).getTextChannels();
 
         for (TextChannel textChannel : textChannels)
+        {
             if (textChannel.getName().split("-")[3].equals(voiceChannelEmoji))
                 return textChannel;
-
+        }
         log.error("Couldn't find matching text channel!");
         return null;
     }
 
-    public static String getNextTextChannelName(JDA jda)
+    public static String getNextEmote(Guild guild)
     {
-        List<TextChannel> textChannels = jda.getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0).getTextChannels();
 
-        for (String emote: Constants.VC_IDENTIFIERS)
+        List<TextChannel> textChannels = guild.getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0).getTextChannels();
+
+        for (int i = 0; i < 100; i++)
         {
-            boolean nameExists = false;
-            String newTextChannelName = Constants.PRACTICE_TEXT_CHANNEL_NAME + emote;
-            for (TextChannel textChannel: textChannels)
+            Random random = new Random();
+            int randomIndex = random.nextInt(Constants.VC_IDENTIFIERS.length);
+            String emote = Constants.VC_IDENTIFIERS[randomIndex];
+
+            boolean emoteFound = false;
+
+            for (TextChannel textChannel : textChannels)
             {
-                if (textChannel.getName().equals(newTextChannelName))
+                String existingEmote = textChannel.getName().split("-")[3];
+
+                if (emote.equals(existingEmote))
                 {
-                    nameExists = true;
+                    emoteFound = true;
                     break;
                 }
             }
-            if (!nameExists)
+            if (!emoteFound)
             {
-                log.info("Creating a Text Channel:" + newTextChannelName);
-                return newTextChannelName;
+                return emote;
             }
         }
-        log.error("Ran out of room emotes!");
+        log.error("Getting new room emote failed after 100 attempts.");
         return "XXX";
     }
-
-    public static String getNextVoiceChannelName(JDA jda)
+    public static String getNextTextChannelName(String emote)
     {
-        //We are still getting the name according to existing text channels so we can avoid name mismatches.
-        List<TextChannel> textChannels = jda.getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0).getTextChannels();
+        String newTextChannelName = Constants.PRACTICE_TEXT_CHANNEL_NAME.concat(emote);
+        log.info("Returning a Text Channel name:" + newTextChannelName);
+        return newTextChannelName;
+    }
 
-        for (String emote: Constants.VC_IDENTIFIERS)
+    public static String getNextVoiceChannelName(String emote)
+    {
+        String newVoiceChannelName = Constants.PRACTICE_VOICE_CHANNEL_NAME.concat(emote);
+        log.info("Returning a Text Channel name:" + newVoiceChannelName);
+        return newVoiceChannelName;
+    }
+
+    public static void createLockedPracticeRoomsAndMove(CommandEvent e, String lockedVoiceName, String lockedTextName, VoiceChannel previousVoiceChannel)
+    {
+        int maxBitRate = e.getGuild().getMaxBitrate();
+        Category category = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME, false).get(0);
+        category.createTextChannel(lockedTextName).complete();
+        category.createVoiceChannel(lockedVoiceName).setBitrate(maxBitRate).complete();
+
+        for (VoiceChannel voiceChannel : category.getVoiceChannels())
         {
-            boolean nameExists = false;
-            String newTextChannelName = Constants.PRACTICE_TEXT_CHANNEL_NAME + emote;
-            String newVoiceChannelName = Constants.PRACTICE_VOICE_CHANNEL_NAME + emote;
-
-            for (TextChannel textChannel: textChannels)
+            String userID = voiceChannel.getName().split(" ")[2];
+            if (e.getMember().getUser().getId().equals(userID))
             {
-                if (textChannel.getName().equals(newTextChannelName))
+                for (Member memberToMove : previousVoiceChannel.getMembers())
                 {
-                    nameExists = true;
-                    break;
+                    e.getGuild().moveVoiceMember(memberToMove, voiceChannel).queue();
                 }
-            }
-            if (!nameExists)
-            {
-                log.info("Creating a Voice Channel: " + newVoiceChannelName);
-                return newVoiceChannelName;
+                break;
             }
         }
-        log.error("Ran out of room emotes!");
-            return "XXX";
     }
 
     public static void createPracticeRoom(GuildVoiceJoinEvent e) throws Exception
@@ -114,6 +131,8 @@ public class Channels
         else
             createChannels(result.get(0), e);
     }
+
+
 
     public static void removeEmptyPracticeChannel(GuildVoiceLeaveEvent e) throws InterruptedException
     {
@@ -156,8 +175,9 @@ public class Channels
         VoiceChannel voiceChannel = e.getChannelLeft();
 
         assert textChannel != null;
-        voiceChannel.getManager().setName(Channels.getNextVoiceChannelName(e)).queue();
-        textChannel.getManager().setName(Channels.getNextTextChannelName(e)).queue();
+        String emote = getNextEmote(e);
+        voiceChannel.getManager().setName(Channels.getNextVoiceChannelName(emote)).queue();
+        textChannel.getManager().setName(Channels.getNextTextChannelName(emote)).queue();
 
         for (int i = 0; i < voiceChannel.getMembers().size(); i++)
             voiceChannel.getMembers().get(i).mute(false).queue();
@@ -166,42 +186,36 @@ public class Channels
     //PRIVATE METHODS
     private static void createChannels(Category category, GuildVoiceJoinEvent e) throws Exception
     {
-        category.createTextChannel(Channels.getNextTextChannelName(e)).queue();
+        String emote = getNextEmote(e);
+        int maxBitrate = e.getGuild().getMaxBitrate();
+        category.createTextChannel(Channels.getNextTextChannelName(emote)).queue();
         Thread.sleep(100);
-        category.createVoiceChannel(Channels.getNextVoiceChannelName(e)).queue();
+        category.createVoiceChannel(Channels.getNextVoiceChannelName(emote)).setBitrate(maxBitrate).queue();
         Thread.sleep(100);
+        log.info("New channel has been created and it's bitrate automatically set to the max available bitrate: " + maxBitrate/1000);
     }
     //PRIVATE METHODS END.
 
     //OVERLOADERS
-    public static String getNextTextChannelName(CommandEvent e)
+    public static void createPracticeRoom(CommandEvent e) throws Exception
     {
-        return getNextTextChannelName(e.getJDA());
+        GuildVoiceJoinEvent fakeJoinEvent = new GuildVoiceJoinEvent(e.getJDA(), e.getResponseNumber(), e.getMember());
+        createPracticeRoom(fakeJoinEvent);
     }
 
-    public static String getNextTextChannelName(GuildVoiceJoinEvent e)
+    public static String getNextEmote(CommandEvent e)
     {
-        return getNextTextChannelName(e.getJDA());
+        return getNextEmote(e.getGuild());
     }
 
-    public static String getNextTextChannelName(GuildVoiceLeaveEvent e)
+    public static String getNextEmote(GuildVoiceJoinEvent e)
     {
-        return getNextTextChannelName(e.getJDA());
+        return getNextEmote(e.getGuild());
     }
 
-    public static String getNextVoiceChannelName(CommandEvent e)
+    public static String getNextEmote(GuildVoiceLeaveEvent e)
     {
-       return getNextVoiceChannelName(e.getJDA());
-    }
-
-    public static String getNextVoiceChannelName(GuildVoiceJoinEvent e)
-    {
-        return getNextVoiceChannelName(e.getJDA());
-    }
-
-    public static String getNextVoiceChannelName(GuildVoiceLeaveEvent e)
-    {
-        return getNextVoiceChannelName(e.getJDA());
+        return getNextEmote(e.getGuild());
     }
     //OVERLOADERS END.
 }

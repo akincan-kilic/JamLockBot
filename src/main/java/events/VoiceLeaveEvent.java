@@ -7,8 +7,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class VoiceLeaveEvent
 {
     private static final Logger log = LoggerFactory.getLogger(VoiceLeaveEvent.class);
@@ -44,8 +42,7 @@ public class VoiceLeaveEvent
 
     public static void lockedLeaveEvent (GuildVoiceLeaveEvent e)
     {
-        String hostName = e.getChannelLeft().getName().split(" ")[4];
-        List<Member> voiceChannelMembers = e.getChannelLeft().getMembers();
+        String hostID = e.getChannelLeft().getName().split(" ")[2];
 
         //This is a safety mechanism, if bot somehow fails to unlock the room when the host leaves, this will make sure its unlocked.
         if (e.getChannelLeft().getMembers().size() == 0)
@@ -55,17 +52,25 @@ public class VoiceLeaveEvent
             Channels.forceUnlock(e);
         }
 
-        for (Member voiceChannelMember : voiceChannelMembers)
+        boolean hostFound = false;
+
+        for (Member voiceChannelMember : e.getChannelLeft().getMembers())
         {
-            if (voiceChannelMember.getUser().getName().equals(hostName))
-                break;
-            else
+
+            if (voiceChannelMember.getUser().getId().equals(hostID))
             {
-                //Unlock the room.
-                Channels.getMatchingTextChannel(e, e.getChannelLeft()).sendMessage("The host left the locked room, unlocking...").queue();
-                log.info("The host left the locked room, attempting to force unlock...");
-                Channels.forceUnlock(e);
+                hostFound = true;
+                log.info("USER ID IS: " + voiceChannelMember.getUser().getId());
+                log.info("HOST ID IS: " + hostID);
+                break;
             }
+        }
+        if (!hostFound)
+        {
+            //Unlock the room.
+            Channels.getMatchingTextChannel(e, e.getChannelLeft()).sendMessage("The host left the locked room, unlocking...").queue();
+            log.info("The host left the locked room, attempting to force unlock...");
+            Channels.forceUnlock(e);
         }
     }
 }

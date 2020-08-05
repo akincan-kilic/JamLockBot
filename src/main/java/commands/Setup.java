@@ -2,6 +2,7 @@ package commands;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import functions.Channels;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -17,9 +18,8 @@ public class Setup extends Command
     {
         this.guildOnly = true;
         this.name = "setup";
-        this.help = "Sets up the practice rooms. (Only an Admin or a Bot Manager is allowed to use this command)";
+        this.help = "Sets up the practice rooms. \n(Only an Admin or a Bot Manager is allowed to use this command)";
     }
-
 
     protected void execute(CommandEvent e)
     {
@@ -45,10 +45,14 @@ public class Setup extends Command
 
             e.getGuild().createCategory(categoryName).queue(cat ->
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    cat.createTextChannel(textChannelName + (Constants.VC_IDENTIFIERS[i])).queue();
-                    cat.createVoiceChannel(voiceChannelName + (Constants.VC_IDENTIFIERS[i])).queue();
+                    try { Channels.createPracticeRoom(e); }
+                    catch (Exception ex)
+                    {
+                        log.info("Failed to create setup rooms.");
+                        log.error(ex.getMessage());
+                    }
                     try { Thread.sleep(100); } catch (InterruptedException ex) { ex.printStackTrace(); }
                 }
             });
@@ -66,7 +70,7 @@ public class Setup extends Command
         log.info("Un-setup command called");
         for (GuildChannel guildChannel : e.getGuild().getChannels())
         {
-            if (guildChannel.getName().contains("Practice Room") || guildChannel.getName().contains("practice-room"))
+            if (Channels.isPracticeRoom(guildChannel))
             {
                 guildChannel.delete().queue();
                 Thread.sleep(100);

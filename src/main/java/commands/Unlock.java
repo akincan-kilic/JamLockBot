@@ -24,15 +24,18 @@ public class Unlock extends Command
     protected void execute(CommandEvent e)
     {
         log.info("Unlock command called");
-        String hostUserName = Channels.getMatchingVoiceChannel(e, e.getMessage().getTextChannel()).getName().split(" ")[4];
-        if (hostUserName.equals(e.getAuthor().getName()))
+
+        String hostUserID = e.getChannel().getName().split("-")[2];
+
+        if (hostUserID.equals(e.getAuthor().getId()))
         {
             TextChannel textChannel = e.getTextChannel();
             VoiceChannel voiceChannel = Channels.getMatchingVoiceChannel(e, textChannel);
 
             assert voiceChannel != null;
-            voiceChannel.getManager().setName(Channels.getNextVoiceChannelName(e)).queue();
-            textChannel.getManager().setName(Channels.getNextTextChannelName(e)).queue();
+            String emote = Channels.getNextEmote(e);
+            voiceChannel.getManager().setName(Channels.getNextVoiceChannelName(emote)).queue();
+            textChannel.getManager().setName(Channels.getNextTextChannelName(emote)).queue();
 
             for (Member memberToUnmute : voiceChannel.getMembers())
                 memberToUnmute.mute(false).queue();

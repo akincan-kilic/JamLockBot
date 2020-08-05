@@ -22,6 +22,7 @@ public class CommandBuilder
         builder.addCommand(new Lock());
         builder.addCommand(new Unlock());
         builder.addCommand(new Bitrate());
+        builder.addCommand(new Sammich());
 
         return builder.build();
     }
