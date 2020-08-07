@@ -34,8 +34,9 @@ public class VoiceLeaveEvent
         }
     }
 
-    public static void voiceMoveLeave(GuildVoiceLeaveEvent e)
+    public static void voiceMoveLeave(GuildVoiceLeaveEvent e) throws InterruptedException
     {
+        Thread.sleep(3000);
         if (isLockedRoom(e.getChannelLeft()))
             lockedLeaveEvent(e);
     }
@@ -56,12 +57,9 @@ public class VoiceLeaveEvent
 
         for (Member voiceChannelMember : e.getChannelLeft().getMembers())
         {
-
             if (voiceChannelMember.getUser().getId().equals(hostID))
             {
                 hostFound = true;
-                log.info("USER ID IS: " + voiceChannelMember.getUser().getId());
-                log.info("HOST ID IS: " + hostID);
                 break;
             }
         }

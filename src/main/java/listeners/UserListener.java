@@ -36,6 +36,12 @@ public class UserListener extends ListenerAdapter
         VoiceJoinEvent.voiceMoveJoin(joinEvent);
 
         GuildVoiceLeaveEvent leaveEvent = new GuildVoiceLeaveEvent(e.getJDA(), e.getResponseNumber(), e.getMember(), e.getChannelLeft());
-        VoiceLeaveEvent.voiceMoveLeave(leaveEvent);
+        try
+        {
+            VoiceLeaveEvent.voiceMoveLeave(leaveEvent);
+        } catch (InterruptedException ex)
+        {
+            log.info(ex.getMessage());
+        }
     }
 }

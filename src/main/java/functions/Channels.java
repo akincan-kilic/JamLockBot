@@ -27,8 +27,15 @@ public class Channels
 
         for (VoiceChannel voiceChannel : voiceChannels)
         {
-            if (voiceChannel.getName().split(" ")[3].equals(textChannelEmoji))
-                return voiceChannel;
+            try
+            {
+                if (voiceChannel.getName().split(" ")[3].equals(textChannelEmoji))
+                    return voiceChannel;
+            }
+            catch (Exception ex)
+            {
+                log.error(ex.getMessage());
+            }
         }
 
         log.error("Couldn't find matching voice channel!");
@@ -42,8 +49,15 @@ public class Channels
 
         for (TextChannel textChannel : textChannels)
         {
-            if (textChannel.getName().split("-")[3].equals(voiceChannelEmoji))
-                return textChannel;
+            try
+            {
+                if (textChannel.getName().split("-")[3].equals(voiceChannelEmoji))
+                    return textChannel;
+            }
+            catch (Exception ex)
+            {
+                log.error(ex.getMessage());
+            }
         }
         log.error("Couldn't find matching text channel!");
         return null;
@@ -64,7 +78,22 @@ public class Channels
 
             for (TextChannel textChannel : textChannels)
             {
-                String existingEmote = textChannel.getName().split("-")[3];
+                String existingEmote = "XXX";
+
+                try
+                {
+                    log.info(textChannel.getName());
+                    log.info(textChannel.getName().split("-")[0]);
+                    log.info(textChannel.getName().split("-")[1]);
+                    log.info(textChannel.getName().split("-")[2]);
+                    log.info(textChannel.getName().split("-")[3]);
+
+                    existingEmote = textChannel.getName().split("-")[3];
+                }
+                catch (Exception e)
+                {
+                    log.error("FAILED TO GET EXISTING CHANNEL EMOTE!");
+                }
 
                 if (emote.equals(existingEmote))
                 {
@@ -136,10 +165,19 @@ public class Channels
 
     public static void removeEmptyPracticeChannel(GuildVoiceLeaveEvent e) throws InterruptedException
     {
-        List<VoiceChannel> voiceChannels = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME,false).get(0).getVoiceChannels();
-        List<TextChannel> textChannels = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME,false).get(0).getTextChannels();
+        List<VoiceChannel> voiceChannels = null;
+        try
+        {
+            voiceChannels = e.getGuild().getCategoriesByName(Constants.PRACTICE_CATEGORY_NAME,false).get(0).getVoiceChannels();
+        }
+        catch (Exception ex)
+        {
+            log.error("FAILED TO GET CATEGORY.");
+        }
+
         int emptyVoiceChannelCount = 0;
 
+        assert voiceChannels != null;
         for (VoiceChannel voiceChannel : voiceChannels)
             if (voiceChannel.getMembers().size() == 0)
                 emptyVoiceChannelCount++;
@@ -156,12 +194,15 @@ public class Channels
 
             if (voiceChannels.get(i).getMembers().size() == 0)
             {
-                log.info("Deleting the extra text channel: {}", textChannels.get(i).getName());
-                textChannels.get(i).delete().queue();
+                VoiceChannel voiceChannelToDelete = voiceChannels.get(i);
+                TextChannel textChannelToDelete = Channels.getMatchingTextChannel(e, voiceChannelToDelete);
+                assert textChannelToDelete != null;
+                log.info("Deleting the extra text channel: {}", textChannelToDelete.getName());
+                textChannelToDelete.delete().queue();
                 Thread.sleep(100);
 
-                log.info("Deleting the extra voice channel: {}", voiceChannels.get(i).getName());
-                voiceChannels.get(i).delete().queue();
+                log.info("Deleting the extra voice channel: {}", voiceChannelToDelete.getName());
+                voiceChannelToDelete.delete().queue();
                 Thread.sleep(100);
 
                 emptyVoiceChannelCount--;
