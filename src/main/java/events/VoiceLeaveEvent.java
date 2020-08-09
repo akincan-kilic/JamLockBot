@@ -19,7 +19,9 @@ public class VoiceLeaveEvent
     public static void voiceLeave(GuildVoiceLeaveEvent e)
     {
         if (isLockedRoom(e.getChannelLeft()))
+        {
             lockedLeaveEvent(e);
+        }
         else
         {
             log.info("User: {} left a voice channel", e.getMember().getUser().getName());

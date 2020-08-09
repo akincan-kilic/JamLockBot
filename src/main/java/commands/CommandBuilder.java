@@ -23,6 +23,8 @@ public class CommandBuilder
         builder.addCommand(new Unlock());
         builder.addCommand(new Bitrate());
         builder.addCommand(new Sammich());
+        builder.addCommand(new ForceMute());
+        builder.addCommand(new ForceUnmute());
 
         return builder.build();
     }

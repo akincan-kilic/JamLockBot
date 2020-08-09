@@ -1,10 +1,12 @@
 package events;
 
 import functions.Channels;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.Constants;
 
 public class VoiceJoinEvent
 {
@@ -46,6 +48,24 @@ public class VoiceJoinEvent
                 e.getMember().mute(true).queue();
         }
         else
-            e.getMember().mute(false).queue();
+        {
+            boolean muteUser = false;
+
+            for (Role role: e.getMember().getRoles())
+            {
+                if (role.getId().equals(Constants.MUTED_ROLE_ID))
+                {
+                    e.getMember().mute(true).queue();
+                    muteUser = true;
+                }
+            }
+
+            if (muteUser)
+            {
+                e.getMember().mute(true).queue();
+            }
+            else
+                e.getMember().mute(false).queue();
+        }
     }
 }
